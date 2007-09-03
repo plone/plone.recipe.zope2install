@@ -21,13 +21,24 @@ class Recipe:
 
         python = buildout['buildout']['python']
         options['executable'] = buildout[python]['executable']
-        options['location'] = os.path.join(
-            buildout['buildout']['parts-directory'],
-            self.name)
         self.svn = options.get('svn', None)
         self.url = options.get('url', None)
         assert self.svn or self.url
 
+        # if we use a download, then we look for a directory with shared Zope
+        # installations
+        if self.svn is None and buildout['buildout'].get('zope-directory') is not None:
+            _, _, urlpath, _, _, _ = urlparse.urlparse(self.url)
+            fname = urlpath.split('/')[-1]
+            options['location'] = os.path.join(
+                buildout['buildout']['zope-directory'],
+                fname)
+            options['shared-zope'] = 'true'
+        else:
+            # put it into parts
+            options['location'] = os.path.join(
+                buildout['buildout']['parts-directory'],
+                self.name)
         # We look for a download directory, where we put the downloaded tarball
         # This is the same as the gocept.download and distros recipes use
         buildout['buildout'].setdefault(
@@ -40,7 +51,13 @@ class Recipe:
         download_dir = self.buildout['buildout']['download-directory']
 
         if os.path.exists(location):
-            shutil.rmtree(location)
+            # if the zope installation exists and is shared, then we are done
+            # and don't return a path, so the shared installation doesn't get
+            # deleted on uninstall
+            if options['shared-zope'] == 'true':
+                return []
+            else:
+                shutil.rmtree(location)
 
         if self.svn:
             assert os.system('svn co %s %s' % (options['svn'], location)
@@ -78,6 +95,9 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
+        if self.url and options['shared-zope'] == 'true':
+            # don't return path if the installation is shared
+            return []
         return location
 
     def update(self):
@@ -85,7 +105,8 @@ class Recipe:
         location = options['location']
         if os.path.exists(location):
             # Don't do anything in offline mode
-            if self.buildout['buildout'].get('offline') == 'true':
+            if self.buildout['buildout'].get('offline') == 'true' or \
+               self.buildout['buildout'].get('newest') == 'false':
                 return location
             
             # If we downloaded a tarball, we don't need to do anything while
