@@ -15,10 +15,10 @@ svn
 
 If you use many buildouts with the same Zope 2 version, then you can add
 "zope-directory" in the "buildout" section in your ~/.buildout/default.cfg
-file like this:
+file like this::
 
-[buildout]
-zope-directory = /home/me/buildout/zope
+  [buildout]
+  zope-directory = /home/me/buildout/zope
 
 For installations from tarballs that directory will be used instead of the
 parts directory in your buildout. Each version of Zope will get it's own
