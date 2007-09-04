@@ -57,7 +57,7 @@ class Recipe:
             # if the zope installation exists and is shared, then we are done
             # and don't return a path, so the shared installation doesn't get
             # deleted on uninstall
-            if options['shared-zope'] == 'true':
+            if options.get('shared-zope') == 'true':
                 return []
             else:
                 shutil.rmtree(location)
@@ -98,7 +98,7 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
-        if self.url and options['shared-zope'] == 'true':
+        if self.url and options.get('shared-zope') == 'true':
             # don't return path if the installation is shared
             return []
         return location
@@ -106,6 +106,7 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
+        shared = options.get('shared-zope')
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \
