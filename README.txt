@@ -23,3 +23,11 @@ zope-directory = /home/me/buildout/zope
 For installations from tarballs that directory will be used instead of the
 parts directory in your buildout. Each version of Zope will get it's own
 directory but if it's already installed the existing one will be reused.
+
+Exported variables
+******************
+
+The following variables are set by this recipe and can be used in other parts.
+
+location
+    The path to the Zope installations root.
