@@ -30,6 +30,9 @@ class Recipe:
         if self.svn is None and buildout['buildout'].get('zope-directory') is not None:
             _, _, urlpath, _, _, _ = urlparse.urlparse(self.url)
             fname = urlpath.split('/')[-1]
+            # cleanup the name a bit
+            for s in ('.tar', '.bz2', '.gz', '.tgz'):
+                fname = fname.replace(s, '')
             options['location'] = os.path.join(
                 buildout['buildout']['zope-directory'],
                 fname)
