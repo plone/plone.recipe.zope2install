@@ -1,6 +1,11 @@
 Change History
 **************
 
+0.4
+===
+
+- Added changes file and small doc layout fix.
+
 0.3
 ===
 
