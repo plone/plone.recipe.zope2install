@@ -1,9 +1,8 @@
-*************************
 plone.recipe.zope2install
-*************************
+=========================
 
 Options
-*******
+-------
 
 To specify which Zope 2 to use, use one of the following options:
 
@@ -25,9 +24,15 @@ parts directory in your buildout. Each version of Zope will get it's own
 directory but if it's already installed the existing one will be reused.
 
 Exported variables
-******************
+------------------
 
 The following variables are set by this recipe and can be used in other parts.
 
 location
     The path to the Zope installations root.
+
+Reporting bugs or asking questions
+----------------------------------
+
+We have a shared bugtracker and help desk on Launchpad:
+https://bugs.launchpad.net/collective.buildout/

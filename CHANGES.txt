@@ -1,26 +1,32 @@
 Change History
-**************
+==============
 
 1.1
-===
+---
 
+- Small documentation update. Added link to the bugtracker.
+  [hannosch]
 
 1.0
-===
+---
 
 - Added changes file and small doc layout fix.
+  [fschulze, hannosch]
 
 0.3
-===
+---
 
 - Fixed an error where the "shared-zope" option was accessed but not yet set.
+  [fschulze]
 
 0.2
-===
+---
 
 - Added option to share Zope installations.
+  [fschulze]
 
 0.1
-===
+---
 
-- Initial release.
+- Initial implementation.
+  [hannosch]
