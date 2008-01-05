@@ -45,13 +45,13 @@ class Recipe:
         # We look for a download directory, where we put the downloaded tarball
         # This is the same as the gocept.download and distros recipes use
         buildout['buildout'].setdefault(
-                    'download-directory',
+                    'download-cache',
                     os.path.join(buildout['buildout']['directory'], 'downloads'))
 
     def install(self):
         options = self.options
         location = options['location']
-        download_dir = self.buildout['buildout']['download-directory']
+        download_dir = self.buildout['buildout']['download-cache']
 
         if os.path.exists(location):
             # if the zope installation exists and is shared, then we are done

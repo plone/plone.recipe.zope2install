@@ -1,6 +1,13 @@
 Change History
 ==============
 
+1.2
+---
+
+- Renamed download-directory to download-cache, which is the name that is used
+  by zc.buildout itself.
+  [hannosch]
+
 1.1
 ---
 
