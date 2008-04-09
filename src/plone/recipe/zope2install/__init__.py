@@ -47,18 +47,6 @@ class Recipe:
         buildout['buildout'].setdefault(
                     'download-cache',
                     os.path.join(buildout['buildout']['directory'], 'downloads'))
-        
-        # Retrieve Zope version
-        # Zope 2.7/2.8
-        if os.path.isfile(os.path.join(options['location'], 'lib/python') + '/version.txt'):
-            version_file = open(os.path.join(options['location'], 'lib/python') + '/version.txt')
-            options['zope2-version'] = version_file.read()
-        # Zope 2.9+
-        elif os.path.isfile(os.path.join(options['location'], 'lib/python/Zope2') + '/version.txt'):
-            version_file = os.path.join(options['location'], 'lib/python/Zope2') + '/version.txt'
-            options['zope2-version'] = version_file.read()
-        else:
-            options['zope2-version'] = "(UNKNOWN)"
 
     def install(self):
         options = self.options
