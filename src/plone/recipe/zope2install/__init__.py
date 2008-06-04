@@ -19,6 +19,24 @@ import urllib2
 import urlparse
 import setuptools.archive_util
 
+EGG_INFO_CONTENT = """Metadata-Version: 1.0
+Name: %s
+Version: %s
+"""
+
+
+class FakeLibInfo(object):
+    """
+    a really simple to store informations about libraries to be faked
+    as eggs.
+    """
+    version = ''
+    name = ''
+
+    def __init__(self, name, version='0.0'):
+        self.version = version
+        self.name = name
+
 
 class Recipe:
 
@@ -105,10 +123,55 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
+        if options.get('fake-zope-eggs') == 'true':
+            print 'creating fake eggs'
+            self.fakeEggs()
         if self.url and options.get('shared-zope') == 'true':
             # don't return path if the installation is shared
             return []
         return location
+
+    def _getInstalledLibs(self, location, prefix):
+        installedLibs = []
+        for lib in os.listdir(location):
+            if os.path.isdir(os.path.join(location, lib)) and\
+               "%s.%s" % (prefix, lib) not in [libInfo.name for libInfo in \
+                                               self.libsToFake]:
+                installedLibs.append(FakeLibInfo("%s.%s" % (prefix, lib)))
+        return installedLibs
+
+    def fakeEggs(self):
+        zope2Location = self.options['location']
+        zopeLibZopeLocation = os.path.join(zope2Location, 'lib', 'python',
+                                           'zope')
+        zopeLibZopeAppLocation = os.path.join(zope2Location, 'lib', 'python',
+                                              'zope', 'app')
+        self.libsToFake = []
+        for lib in self.options.get('additional-fake-eggs', '').split('\n'):
+            # 2 forms available:
+            #  * additional-fake-eggs = myEgg
+            #  * additional-fake-eggs = myEgg=0.4
+            if '=' in lib:
+                lib = lib.strip().split('=')
+                eggName = lib[0].strip()
+                version = lib[1].strip()
+                libInfo = FakeLibInfo(eggName, version)
+            else:
+                eggName = lib.strip()
+                libInfo = FakeLibInfo(eggName)
+
+            self.libsToFake.append(libInfo)
+
+        self.libsToFake += self._getInstalledLibs(zopeLibZopeLocation, 'zope')
+        self.libsToFake += self._getInstalledLibs(zopeLibZopeAppLocation,
+                                             'zope.app')
+        developEggDir = self.buildout['buildout']['develop-eggs-directory']
+        for libInfo in self.libsToFake:
+            fakeLibEggInfoFile = os.path.join(developEggDir,
+                                              '%s.egg-info' % libInfo.name)
+            fd = open(fakeLibEggInfoFile, 'w')
+            fd.write(EGG_INFO_CONTENT % (libInfo.name, libInfo.version))
+            fd.close()
 
     def update(self):
         options = self.options
@@ -147,4 +210,7 @@ class Recipe:
                 'build_ext', '-i',
                 ) == 0
 
+        if options.get('fake-zope-eggs') == 'true':
+            print 'creating fake eggs'
+            self.fakeEggs()
         return location
