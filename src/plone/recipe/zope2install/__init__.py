@@ -123,8 +123,8 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
-        if options.get('fake-zope-eggs').lower().strip() == 'true':
-            print 'creating fake eggs'
+        if options.get('fake-zope-eggs') == 'true':
+            print 'Creating fake eggs'
             self.fakeEggs()
         if self.url and options.get('shared-zope') == 'true':
             # don't return path if the installation is shared
@@ -210,8 +210,8 @@ class Recipe:
                 'build_ext', '-i',
                 ) == 0
 
-            if options.get('fake-zope-eggs').lower().strip() == 'true':
-                print 'creating fake eggs'
+            if options.get('fake-zope-eggs') == 'true':
+                print 'Creating fake eggs'
                 self.fakeEggs()
 
         return location

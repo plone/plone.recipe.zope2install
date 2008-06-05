@@ -90,6 +90,7 @@ Just add it to your buildout config like this::
 Now if we run the buildout again::
 
     >>> print system(buildout)
+    Uninstalling zope2.
     Installing zope2.
     running build_ext
     creating zope.proxy
