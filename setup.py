@@ -35,5 +35,6 @@ setup(
     package_dir = {'':'src'},
     namespace_packages = ['plone', 'plone.recipe'],
     install_requires = ['zc.buildout', 'setuptools'],
+    zip_safe=False,
     entry_points = {'zc.buildout': ['default = %s:Recipe' % name]},
     )

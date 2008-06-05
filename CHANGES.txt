@@ -4,6 +4,9 @@ Change History
 2.1
 ---
 
+- Explicitly set zip-safe flag.
+  [hannosch]
+
 
 2.0 (2008-06-05)
 ----------------
