@@ -1,8 +1,11 @@
 Change History
 ==============
 
-2.1
----
+2.1 (2008-06-05)
+----------------
+
+- Fixed error in retracted 2.0 release.
+  [hannosch]
 
 - Explicitly set zip-safe flag.
   [hannosch]
