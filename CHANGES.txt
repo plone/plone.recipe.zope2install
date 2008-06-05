@@ -1,46 +1,52 @@
 Change History
 ==============
 
-2.0
----
+2.0 (2008-06-05)
+----------------
 
 - Merged all the options from the affinitic.recipe.fakezope2eggs recipe into
   this recipe.
   [jfroche, hannosch]
 
-1.2
----
+
+1.2 (2008-01-05)
+----------------
 
 - Renamed download-directory to download-cache, which is the name that is used
   by zc.buildout itself.
   [hannosch]
 
-1.1
----
+
+1.1 (2007-12-21)
+----------------
 
 - Small documentation update. Added link to the bugtracker.
   [hannosch]
 
-1.0
----
+
+1.0 (2007-11-29)
+----------------
 
 - Added changes file and small doc layout fix.
   [fschulze, hannosch]
 
-0.3
----
+
+0.3 (2007-09-05)
+----------------
 
 - Fixed an error where the "shared-zope" option was accessed but not yet set.
   [fschulze]
 
-0.2
----
+
+0.2 (2007-09-05)
+----------------
 
 - Added option to share Zope installations.
   [fschulze]
 
-0.1
----
+
+0.1 (2007-02-26)
+----------------
 
 - Initial implementation.
   [hannosch]
