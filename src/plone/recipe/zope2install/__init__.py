@@ -112,6 +112,8 @@ class Recipe:
                 # The Zope tarballs have a Zope-<version> folder at the root
                 # level, so we need to move that one into the right place.
                 files = os.listdir(tmp)
+                if len(files) == 0:
+                    raise ValueError('Broken Zope tarball named %s' % fname)
                 shutil.move(os.path.join(tmp, files[0]), location)
             finally:
                 shutil.rmtree(tmp)
