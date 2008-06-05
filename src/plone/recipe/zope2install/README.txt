@@ -101,7 +101,7 @@ Now if we run the buildout again::
     creating build/.../AccessControl
     ...
 
-Now if we list all the developped egg we have:
+Now if we list all the developed egg we have:
 
     >>> ls(sample_buildout, 'develop-eggs')
     -  .egg-info
@@ -148,7 +148,7 @@ additional-fake-eggs option, for example::
     creating build/.../AccessControl
     ...
 
-Let's check if the additionnal fake egg exists:
+Let's check if the additional fake egg exists:
 
     >>> cat(sample_buildout, 'develop-eggs', 'ZODB3.egg-info')
     Metadata-Version: 1.0

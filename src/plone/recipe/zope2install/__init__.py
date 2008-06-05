@@ -123,7 +123,7 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
-        if options.get('fake-zope-eggs') == 'true':
+        if options.get('fake-zope-eggs').lower().strip() == 'true':
             print 'creating fake eggs'
             self.fakeEggs()
         if self.url and options.get('shared-zope') == 'true':
@@ -210,7 +210,8 @@ class Recipe:
                 'build_ext', '-i',
                 ) == 0
 
-        if options.get('fake-zope-eggs') == 'true':
-            print 'creating fake eggs'
-            self.fakeEggs()
+            if options.get('fake-zope-eggs').lower().strip() == 'true':
+                print 'creating fake eggs'
+                self.fakeEggs()
+
         return location
