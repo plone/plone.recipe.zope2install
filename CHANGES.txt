@@ -1,6 +1,10 @@
 Change History
 ==============
 
+2.3
+---
+
+
 2.2 (2008-06-07)
 ----------------
 
@@ -21,6 +25,7 @@ Change History
 
 - Added error message for 0-byte sized Zope tarball downloads.
   [hannosch, sidnei]
+
 
 2.1 (2008-06-05)
 ----------------
