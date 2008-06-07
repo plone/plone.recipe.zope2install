@@ -4,6 +4,21 @@ Change History
 2.2
 ---
 
+- Updated `fake-zope-eggs` handling, to be called when updating, so changes
+  to `skip-fake-eggs` and add `additional-fake-eggs` are respected.
+  [hannosch]
+
+- Added new `skip-fake-eggs` option, that allows to skip the creation of
+  fake eggs for a list of packages, so you can for example require a newer
+  `zope.tal` version.
+  [hannosch]
+
+- Include the Python version Zope is compiled with into the shared-zope name.
+  This allows you to have the same Zope version compiled with for example
+  Python 2.3 and 2.4 but still share it. The change means, you will have to
+  recompile all Zope versions.
+  [hannosch, fschulze]
+
 - Added error message for 0-byte sized Zope tarball downloads.
   [hannosch, sidnei]
 

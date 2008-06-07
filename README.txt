@@ -29,6 +29,11 @@ To specify which Zope 2 to use, use one of the following options:
 
     Otherwise the faked eggs will always have version 0.0.
 
+`skip-fake-eggs`
+    Specify an optional list of packages, for whom no fake egg is created.
+    This allows to pull in new versions of some of the Zope packages via
+    normal version requirements.
+
 If you use many buildouts with the same Zope 2 version, then you can add
 "zope-directory" in the "buildout" section in your ~/.buildout/default.cfg
 file like this::

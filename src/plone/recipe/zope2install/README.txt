@@ -104,7 +104,6 @@ Now if we run the buildout again::
 Now if we list all the developed eggs we have:
 
     >>> ls(sample_buildout, 'develop-eggs')
-    -  .egg-info
     -  plone.recipe.zope2install.egg-link
     -  zope.annotation.egg-info
     -  zope.app.annotation.egg-info
@@ -132,7 +131,6 @@ additional-fake-eggs option, for example::
     ... [zope2]
     ... recipe = plone.recipe.zope2install
     ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
-    ... fake-zope-eggs = true
     ... additional-fake-eggs = ZODB3
     ... """)
 
@@ -167,7 +165,6 @@ If you need to have a specific version of an egg, this can be done like this:
     ... [zope2]
     ... recipe = plone.recipe.zope2install
     ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
-    ... fake-zope-eggs = true
     ... additional-fake-eggs = ZODB3=3.7
     ...                        zope.app.tree = 1.7
     ... """)
@@ -194,3 +191,43 @@ If you need to have a specific version of an egg, this can be done like this:
     Name: zope.app.tree
     Version: 1.7
 
+In some cases you might also want to ignore some of the packages shipped
+with the Zope tarball::
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = zope2
+    ... find-links =
+    ...     http://dist.plone.org/
+    ...
+    ... [zope2]
+    ... recipe = plone.recipe.zope2install
+    ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
+    ... skip-fake-eggs =
+    ...     zope.annotation
+    ...     zope.app.apidoc
+    ... """)
+
+Let's run the buildout::
+
+    >>> print system(buildout)
+    Uninstalling zope2.
+    Installing zope2.
+    running build_ext
+    creating zope.proxy
+    copying zope/proxy/proxy.h -> zope.proxy
+    building 'AccessControl.cAccessControl' extension
+    creating build
+    creating build/...
+    creating build/.../AccessControl
+    ...
+
+Now if we list all the developed eggs we have:
+
+    >>> ls(sample_buildout, 'develop-eggs')
+    -  ZODB3.egg-info
+    -  plone.recipe.zope2install.egg-link
+    -  zope.app.annotation.egg-info
+    -  zope.app.applicationcontrol.egg-info
+    ...
