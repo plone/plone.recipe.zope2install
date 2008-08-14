@@ -4,6 +4,9 @@ Change History
 2.3
 ---
 
+- stderr in svn update is no longer filtered but printed on console.
+  [icemac]
+
 
 2.2 (2008-06-07)
 ----------------
