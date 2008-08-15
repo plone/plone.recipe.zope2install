@@ -19,7 +19,6 @@ import tempfile
 import urllib2
 import urlparse
 import setuptools.archive_util
-import subprocess
 
 EGG_INFO_CONTENT = """Metadata-Version: 1.0
 Name: %s
@@ -232,19 +231,20 @@ class Recipe:
                 return location
 
             os.chdir(location)
-            process_info = subprocess.Popen(
-                ['svn', 'up'], stdout=subprocess.PIPE, stderr=None, 
-                close_fds=True)
-            process_info.wait()
+            stdin, stdout, stderr = os.popen3('svn up')
+            stdin.close()
+            for line in stderr.readlines():
+                sys.stderr.write(line)
+            stderr.close()
             change = re.compile('[AUM] ').match
-            for l in process_info.stdout:
+            for l in stdout:
                 if change(l):
-                    process_info.stdout.read()
-                    process_info.stdout.close()
+                    stdout.read()
+                    stdout.close()
                     break
                 else:
                     # No change, so all done
-                    process_info.stdout.close()
+                    stdout.close()
                     return location
 
             assert os.spawnl(
