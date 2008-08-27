@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 name = "plone.recipe.zope2install"
-version = '2.3'
+version = '2.4'
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
@@ -17,7 +17,7 @@ setup(
     name = name,
     version = version,
     author = "Hanno Schlichting",
-    author_email = "plone@hannosch.info",
+    author_email = "hannosch@plone.org",
     description = "ZC Buildout recipe for installing Zope 2.",
           long_description=long_description,
     license = "ZPL 2.1",
