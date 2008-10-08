@@ -4,6 +4,8 @@ Change History
 2.4
 ---
 
+- Prevent update from ever messing with a shared Zope installation.
+  [fschulze]
 
 
 2.3 (2008-08-27)

@@ -210,7 +210,6 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
-        shared = options.get('shared-zope')
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \
@@ -218,6 +217,8 @@ class Recipe:
                 if self.fake_zope_eggs:
                     print 'Updating fake eggs'
                     self.fakeEggs()
+                if options.get('shared-zope') == 'true':
+                    return []
                 return location
 
             # If we downloaded a tarball, we don't need to do anything while
@@ -228,6 +229,8 @@ class Recipe:
                 if self.fake_zope_eggs:
                     print 'Updating fake eggs'
                     self.fakeEggs()
+                if options.get('shared-zope') == 'true':
+                    return []
                 return location
 
             os.chdir(location)
