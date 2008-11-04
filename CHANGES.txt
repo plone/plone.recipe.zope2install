@@ -4,6 +4,9 @@ Change History
 2.4
 ---
 
+- Allow to use an existing Zope installation by specifying its `location`.
+  [stefan]
+
 - Prevent update from ever messing with a shared Zope installation.
   [fschulze]
 
