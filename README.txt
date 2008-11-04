@@ -12,6 +12,9 @@ To specify which Zope 2 to use, use one of the following options:
 `svn`
     The URL for an subversion checkout to use for the Zope 2 installation.
 
+`location`
+    The path to a local, existing Zope 2 installation.
+
 `fake-zope-eggs`
     If set to true, add fake egg links to Zope 3 libraries, so that setuptools
     can see and use them for dependencies lookup.
