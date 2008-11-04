@@ -46,11 +46,17 @@ class Recipe:
 
         python = buildout['buildout']['python']
         options['executable'] = buildout[python]['executable']
+        self.location = options.get('location', None)
         self.svn = options.get('svn', None)
         self.url = options.get('url', None)
-        assert self.svn or self.url
+        assert self.location or self.svn or self.url
 
-        if (self.svn is None and
+        if self.location is not None:
+            # We have an existing Zope installation; use it.
+            assert os.path.exists(self.location), 'No such file or directory: %s' % (self.location,)
+            options['location'] = self.location
+            options['shared-zope'] = 'true'
+        elif (self.svn is None and
             buildout['buildout'].get('zope-directory') is not None):
             # if we use a download, then we look for a directory with shared
             # Zope installations. TODO Sharing of SVN checkouts is not yet
@@ -225,7 +231,7 @@ class Recipe:
             # updating, otherwise we have a svn checkout and should run
             # 'svn up' and see if there has been any changes so we recompile
             # the c extensions
-            if self.url:
+            if self.location or self.url:
                 if self.fake_zope_eggs:
                     print 'Updating fake eggs'
                     self.fakeEggs()
