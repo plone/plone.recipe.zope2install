@@ -13,7 +13,8 @@ To specify which Zope 2 to use, use one of the following options:
     The URL for an subversion checkout to use for the Zope 2 installation.
 
 `location`
-    The path to a local, existing Zope 2 installation.
+    The path to a local, existing Zope 2 installation. Note: For this to work
+    Zope must have been built with the same Python used to run buildout.
 
 `fake-zope-eggs`
     If set to true, add fake egg links to Zope 3 libraries, so that setuptools
