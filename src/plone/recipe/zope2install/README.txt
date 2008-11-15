@@ -56,8 +56,10 @@ Let's have a look at the different folders created::
     d  lib
     -  log.ini
     -  setup.py
+    -  setup.pyc
     d  skel
     -  test.py
+    -  test.pyc
     -  testing.log
     d  utilities
 
