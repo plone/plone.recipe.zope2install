@@ -152,12 +152,14 @@ class Recipe:
             'build_ext', '-i',
             ) == 0
 
-        # compile .py files to .pyc
-        assert os.spawnl(
+        # compile .py files to .pyc;
+        # ignore return status since compilezpy.py will return
+        # an exist status of 1 for even a single failed compile.
+        os.spawnl(
             os.P_WAIT, options['executable'], options['executable'],
             os.path.join(location, 'utilities', 'compilezpy.py'),
             'build_ext', '-i',
-            ) == 0
+            )
 
         if self.fake_zope_eggs:
             print 'Creating fake eggs'
