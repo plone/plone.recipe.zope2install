@@ -46,11 +46,17 @@ class Recipe:
 
         python = buildout['buildout']['python']
         options['executable'] = buildout[python]['executable']
+        self.location = options.get('location', None)
         self.svn = options.get('svn', None)
         self.url = options.get('url', None)
-        assert self.svn or self.url
+        assert self.location or self.svn or self.url
 
-        if (self.svn is None and
+        if self.location is not None:
+            # We have an existing Zope installation; use it.
+            assert os.path.exists(self.location), 'No such file or directory: %s' % (self.location,)
+            options['location'] = self.location
+            options['shared-zope'] = 'true'
+        elif (self.svn is None and
             buildout['buildout'].get('zope-directory') is not None):
             # if we use a download, then we look for a directory with shared
             # Zope installations. TODO Sharing of SVN checkouts is not yet
@@ -90,27 +96,10 @@ class Recipe:
         if self.skip_fake_eggs or self.additional_fake_eggs:
             self.fake_zope_eggs = True
 
-    def _compiled(self, path):
-        """returns True if the path is compiled"""
-        for files, dirs, root in os.walk(path):
-            for f in files:
-                base, ext = os.path.splitext(f)
-                if ext == '.c':
-                    if sys.platform == 'win32':
-                        compiled_ext = '.pyd'
-                    else:
-                        compiled_ext = '.so'
-                    
-                    compiled = os.path.join(root, '%s%s' % (base, compiled_ext))
-                    if not os.path.exists(compiled):
-                        return False
-        return True
-
     def install(self):
         options = self.options
         location = options['location']
         download_dir = self.buildout['buildout']['download-cache']
-        smart_recompile = options.get('smart-recompile') == 'true'
 
         if os.path.exists(location):
             # if the zope installation exists and is shared, then we are done
@@ -123,20 +112,9 @@ class Recipe:
                     print 'Creating fake eggs'
                     self.fakeEggs()
                 return []
-        else:
-            no_recompile = False
+            else:
+                shutil.rmtree(location)
 
-        if smart_recompile and os.path.exists(location):
-            # checking if the c source where compiled.
-            if self._compiled(location):
-                if self.fake_zope_eggs:
-                    print 'Creating fake eggs'
-                    self.fakeEggs()
-                return []
-
-        # full installation 
-        if os.path.exists(location):
-            shutil.rmtree(location)
         if self.svn:
             assert os.system('svn co %s %s' % (options['svn'], location)) == 0
         else:
@@ -173,6 +151,15 @@ class Recipe:
             'setup.py',
             'build_ext', '-i',
             ) == 0
+
+        # compile .py files to .pyc;
+        # ignore return status since compilezpy.py will return
+        # an exist status of 1 for even a single failed compile.
+        os.spawnl(
+            os.P_WAIT, options['executable'], options['executable'],
+            os.path.join(location, 'utilities', 'compilezpy.py'),
+            'build_ext', '-i',
+            )
 
         if self.fake_zope_eggs:
             print 'Creating fake eggs'
@@ -238,7 +225,6 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
-        shared = options.get('shared-zope')
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \
@@ -246,16 +232,20 @@ class Recipe:
                 if self.fake_zope_eggs:
                     print 'Updating fake eggs'
                     self.fakeEggs()
+                if options.get('shared-zope') == 'true':
+                    return []
                 return location
 
             # If we downloaded a tarball, we don't need to do anything while
             # updating, otherwise we have a svn checkout and should run
             # 'svn up' and see if there has been any changes so we recompile
             # the c extensions
-            if self.url:
+            if self.location or self.url:
                 if self.fake_zope_eggs:
                     print 'Updating fake eggs'
                     self.fakeEggs()
+                if options.get('shared-zope') == 'true':
+                    return []
                 return location
 
             os.chdir(location)
@@ -274,10 +264,6 @@ class Recipe:
                     # No change, so all done
                     stdout.close()
                     return location
-            
-            if (self._compiled(location) and 
-                options.get('smart-recompile') == 'true'):
-                return location
 
             assert os.spawnl(
                 os.P_WAIT, options['executable'], options['executable'],

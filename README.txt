@@ -38,10 +38,6 @@ To specify which Zope 2 to use, use one of the following options:
     This allows to pull in new versions of some of the Zope packages via
     normal version requirements.
 
-`smart-recompile`
-    Will not recompile Zope if it finds .so or .pyd files. This means
-    you can move your buildout around and speed up builds.
-
 If you use many buildouts with the same Zope 2 version, then you can add
 "zope-directory" in the "buildout" section in your ~/.buildout/default.cfg
 file like this::
