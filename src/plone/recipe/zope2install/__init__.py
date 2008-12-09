@@ -96,10 +96,27 @@ class Recipe:
         if self.skip_fake_eggs or self.additional_fake_eggs:
             self.fake_zope_eggs = True
 
+    def _compiled(self, path):
+        """returns True if the path is compiled"""
+        for files, dirs, root in os.walk(path):
+            for f in files:
+                base, ext = os.path.splitext(f)
+                if ext == '.c':
+                    if sys.platform == 'win32':
+                        compiled_ext = '.pyd'
+                    else:
+                        compiled_ext = '.so'
+                    
+                    compiled = os.path.join(root, '%s%s' % (base, compiled_ext))
+                    if not os.path.exists(compiled):
+                        return False
+        return True
+
     def install(self):
         options = self.options
         location = options['location']
         download_dir = self.buildout['buildout']['download-cache']
+        smart_recompile = options.get('smart-recompile') == 'true' 
 
         if os.path.exists(location):
             # if the zope installation exists and is shared, then we are done
@@ -112,9 +129,21 @@ class Recipe:
                     print 'Creating fake eggs'
                     self.fakeEggs()
                 return []
-            else:
-                shutil.rmtree(location)
+        else:
+            smart_recompile = True
 
+        if smart_recompile and os.path.exists(location):
+            # checking if the c source where compiled. 
+            if self._compiled(location): 
+                if self.fake_zope_eggs: 
+                    print 'Creating fake eggs' 
+                    self.fakeEggs() 
+                return [] 
+
+        # full installation 
+        if os.path.exists(location): 
+            shutil.rmtree(location) 
+        
         if self.svn:
             assert os.system('svn co %s %s' % (options['svn'], location)) == 0
         else:
@@ -225,6 +254,7 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
+        shared = options.get('shared-zope') 
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \
@@ -247,6 +277,10 @@ class Recipe:
                 if options.get('shared-zope') == 'true':
                     return []
                 return location
+            
+            if (self._compiled(location) and
+                options.get('smart-recompile') == 'true'): 
+                return location 
 
             os.chdir(location)
             stdin, stdout, stderr = os.popen3('svn up')

@@ -3,6 +3,7 @@ Change History
 
 2.6 (unreleased)
 ----------------
+- Added the smart-recompile option [tarek] 
 
 - Ignore exit status of compilezpy.py since it returns an
   exit status > 0 for even a single compile failure.

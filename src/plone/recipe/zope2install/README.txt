@@ -233,3 +233,75 @@ Now if we list all the developed eggs we have:
     -  zope.app.annotation.egg-info
     -  zope.app.applicationcontrol.egg-info
     ...
+
+Smart compilation
+=================
+
+Let's try the smart compilation option.
+
+Just add it to your buildout config like this::
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = zope2
+    ... find-links =
+    ...     http://dist.plone.org/
+    ...
+    ... [zope2]
+    ... recipe = plone.recipe.zope2install
+    ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
+    ... smart-recompile = true
+    ... """)
+
+Now if we run the buildout again::
+
+    >>> print system(buildout)
+    Uninstalling zope2.
+    Installing zope2.
+    running build_ext
+    creating zope.proxy
+    copying zope/proxy/proxy.h -> zope.proxy
+    building 'AccessControl.cAccessControl' extension
+    creating build
+    creating build/...
+    creating build/.../AccessControl
+    ...
+
+And a second time, even if we remove .installed.cfg it is not recompiled::
+
+    >>> import os
+    >>> os.remove('.installed.cfg')
+    >>> print system(buildout)
+    Installing zope2.
+    <BLANKLINE>
+
+Let's remove the option::
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = zope2
+    ... find-links =
+    ...     http://dist.plone.org/
+    ...
+    ... [zope2]
+    ... recipe = plone.recipe.zope2install
+    ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
+    ... """)
+
+Now if we run the buildout again::
+
+    >>> print system(buildout)
+    Uninstalling zope2.
+    Installing zope2.
+    running build_ext
+    creating zope.proxy
+    copying zope/proxy/proxy.h -> zope.proxy
+    building 'AccessControl.cAccessControl' extension
+    creating build
+    creating build/...
+    creating build/.../AccessControl
+    ...
+
+
