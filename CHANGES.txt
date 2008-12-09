@@ -8,6 +8,8 @@ Change History
   exit status > 0 for even a single compile failure.
   [smcmahon]
 
+- Added the smart-recompile option [tarek]
+
 2.5 (2008-11-15)
 ----------------
 
