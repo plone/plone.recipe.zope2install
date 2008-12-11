@@ -103,19 +103,58 @@ Now if we run the buildout again::
     creating build/.../AccessControl
     ...
 
-Now if we list all the developed eggs we have:
+The recipe then creates a fake-eggs folder in the buildout:
+
+    >>> ls(sample_buildout)
+    -  .installed.cfg
+    d  bin
+    -  buildout.cfg
+    d  develop-eggs
+    d  downloads
+    d  eggs
+    d  fake-eggs
+    d  parts
+
+With every eggs as a folder:
+
+    >>> ls(sample_buildout, 'fake-eggs')
+    d  zope.annotation
+    d  zope.app
+    d  zope.app.annotation
+    d  zope.app.apidoc
+    d  zope.app.applicationcontrol
+    d  zope.app.appsetup
+    d  zope.app.authentication
+    d  zope.app.basicskin
+    d  zope.app.broken
+    ...
+
+
+Now if we list all the developed eggs we have::
 
     >>> ls(sample_buildout, 'develop-eggs')
     -  plone.recipe.zope2install.egg-link
-    -  zope.annotation.egg-info
-    -  zope.app.annotation.egg-info
-    -  zope.app.apidoc.egg-info
-    -  zope.app.applicationcontrol.egg-info
+    -  zope.annotation.egg-link
+    -  zope.app.annotation.egg-link
+    -  zope.app.apidoc.egg-link
+    -  zope.app.applicationcontrol.egg-link
     ...
 
 Let's have a look at the content of one of them::
 
-    >>> cat(sample_buildout, 'develop-eggs', 'zope.annotation.egg-info')
+    >>> cat(sample_buildout, 'develop-eggs', 'zope.annotation.egg-link')
+    /sample-buildout/fake-eggs/zope.annotation
+    .
+
+And inside of each folder of the fake-eggs we have the egg-info::
+
+    >>> ls(sample_buildout, 'fake-eggs', 'zope.annotation')
+    -  zope.annotation.egg-info
+
+Which contains::
+
+    >>> cat(sample_buildout, 'fake-eggs', 'zope.annotation',
+    ...     'zope.annotation.egg-info')
     Metadata-Version: 1.0
     Name: zope.annotation
     Version: 0.0
@@ -150,7 +189,7 @@ additional-fake-eggs option, for example::
 
 Let's check if the additional fake egg exists:
 
-    >>> cat(sample_buildout, 'develop-eggs', 'ZODB3.egg-info')
+    >>> cat(sample_buildout, 'fake-eggs', 'ZODB3', 'ZODB3.egg-info')
     Metadata-Version: 1.0
     Name: ZODB3
     Version: 0.0
@@ -183,12 +222,12 @@ If you need to have a specific version of an egg, this can be done like this:
     creating build/.../AccessControl
     ...
 
-    >>> cat(sample_buildout, 'develop-eggs', 'ZODB3.egg-info')
+    >>> cat(sample_buildout, 'fake-eggs', 'ZODB3', 'ZODB3.egg-info')
     Metadata-Version: 1.0
     Name: ZODB3
     Version: 3.7
 
-    >>> cat(sample_buildout, 'develop-eggs', 'zope.app.tree.egg-info')
+    >>> cat(sample_buildout, 'fake-eggs', 'zope.app.tree', 'zope.app.tree.egg-info')
     Metadata-Version: 1.0
     Name: zope.app.tree
     Version: 1.7
@@ -228,10 +267,10 @@ Let's run the buildout::
 Now if we list all the developed eggs we have:
 
     >>> ls(sample_buildout, 'develop-eggs')
-    -  ZODB3.egg-info
+    -  ZODB3.egg-link
     -  plone.recipe.zope2install.egg-link
-    -  zope.app.annotation.egg-info
-    -  zope.app.applicationcontrol.egg-info
+    -  zope.app.annotation.egg-link
+    -  zope.app.applicationcontrol.egg-link
     ...
 
 Smart compilation

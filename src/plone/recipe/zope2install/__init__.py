@@ -92,6 +92,8 @@ class Recipe:
         self.additional_fake_eggs = [e for e in additional.split('\n') if e]
 
         self.fake_zope_eggs = bool(options.get('fake-zope-eggs', False))
+        self.fake_eggs_folder = self.options.get('fake-eggs-folder',
+                                                 'fake-eggs')
         # Automatically activate fake eggs
         if self.skip_fake_eggs or self.additional_fake_eggs:
             self.fake_zope_eggs = True
@@ -217,6 +219,11 @@ class Recipe:
                                            'zope')
         zopeLibZopeAppLocation = os.path.join(zope2Location, 'lib', 'python',
                                               'zope', 'app')
+        fakeEggsFolderLocation = os.path.join(self.buildout['buildout']['directory'],
+                                              self.fake_eggs_folder)
+        if not os.path.isdir(fakeEggsFolderLocation):
+            os.mkdir(fakeEggsFolderLocation)
+
         self.libsToFake = []
         for lib in self.additional_fake_eggs:
             # 2 forms available:
@@ -239,17 +246,29 @@ class Recipe:
 
         developEggDir = self.buildout['buildout']['develop-eggs-directory']
         for libInfo in self.libsToFake:
-            fakeLibEggInfoFile = os.path.join(developEggDir,
+            fakeLibDirLocation = os.path.join(fakeEggsFolderLocation,
+                                              libInfo.name)
+            fake_egg_link = os.path.join(developEggDir, '%s.egg-link' %\
+                                         libInfo.name)
+            if not os.path.isdir(fakeLibDirLocation):
+                os.mkdir(fakeLibDirLocation)
+            fakeLibEggInfoFile = os.path.join(fakeLibDirLocation,
                                               '%s.egg-info' % libInfo.name)
             fd = open(fakeLibEggInfoFile, 'w')
             fd.write(EGG_INFO_CONTENT % (libInfo.name, libInfo.version))
             fd.close()
+            fd = open(fake_egg_link, 'w')
+            fd.write("%s\n." % fakeLibDirLocation)
+            fd.close()
 
         # Delete fake eggs, when we don't want them anymore
         for name in self.skip_fake_eggs:
-            fake_egg_file = os.path.join(developEggDir, '%s.egg-info' % name)
-            if os.path.exists(fake_egg_file):
-                os.remove(fake_egg_file)
+            fake_egg_link = os.path.join(developEggDir, '%s.egg-link' % name)
+            fakeLibDir = os.path.join(fakeEggsFolderLocation, name)
+            if os.path.isdir(fakeLibDir):
+                shutil.rmtree(fakeLibDir)
+            if os.path.exists(fake_egg_link):
+                os.remove(fake_egg_link)
 
     def update(self):
         options = self.options
