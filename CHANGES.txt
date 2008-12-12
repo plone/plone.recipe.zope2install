@@ -1,7 +1,7 @@
 Change History
 ==============
 
-2.6 (unreleased)
+2.6 (2008-12-12)
 ----------------
 
 - Change the fake eggs creation, to fix bug related to egg depedencies
