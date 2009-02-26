@@ -17,12 +17,11 @@ Zope tarball::
     ... """
     ... [buildout]
     ... parts = zope2
-    ... find-links =
-    ...     http://dist.plone.org/
     ...
     ... [zope2]
     ... recipe = plone.recipe.zope2install
-    ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
+    ... url = http://www.zope.org/Products/Zope/2.11.2/Zope-2.11.2-final.tgz
+    ... fake-zope-eggs = False
     ... """)
 
 If we run the buildout it returns::
@@ -66,15 +65,15 @@ Let's have a look at the different folders created::
 Fake Zope Eggs Example
 ======================
 
-Zope 2 isn't eggified yet, Zope 3 does. That can become a problem if you want
-to install some egg with depedencies related to Zope 3 eggs (such as
+Zope 2 isn't eggified yet, Zope 3 is. This can become a problem if you want
+to install some egg with dependencies related to Zope 3 eggs (such as
 zope.interface, zope.component, ...)
 
 This buildout recipe can help you by adding some fake eggs to Zope libraries
 (installed inside zope/lib/python/zope/...) so that setuptools can see that
 the dependencies are already satisfied and it won't fetch them anymore.
 
-Just add it to your buildout config like this::
+Since version 3 of the recipe this is the default::
 
     >>> write('buildout.cfg',
     ... """
@@ -86,7 +85,6 @@ Just add it to your buildout config like this::
     ... [zope2]
     ... recipe = plone.recipe.zope2install
     ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
-    ... fake-zope-eggs = true
     ... """)
 
 Now if we run the buildout again::
@@ -118,26 +116,49 @@ The recipe then creates a fake-eggs folder in the buildout:
 With every eggs as a folder:
 
     >>> ls(sample_buildout, 'fake-eggs')
+    d  Acquisition
+    d  ClientForm
+    d  DateTime
+    d  ExtensionClass
+    d  Persistence
+    d  RestrictedPython
+    d  ZConfig
+    d  ZODB3
+    d  Zope2
+    d  docutils
+    d  mechanize
+    d  pytz
+    d  tempstorage
+    d  zLOG
+    d  zdaemon
+    d  zodbcode
     d  zope.annotation
     d  zope.app
     d  zope.app.annotation
-    d  zope.app.apidoc
-    d  zope.app.applicationcontrol
-    d  zope.app.appsetup
-    d  zope.app.authentication
-    d  zope.app.basicskin
-    d  zope.app.broken
     ...
-
 
 Now if we list all the developed eggs we have::
 
     >>> ls(sample_buildout, 'develop-eggs')
+    -  Acquisition.egg-link
+    -  ClientForm.egg-link
+    -  DateTime.egg-link
+    -  ExtensionClass.egg-link
+    -  Persistence.egg-link
+    -  RestrictedPython.egg-link
+    -  ZConfig.egg-link
+    -  ZODB3.egg-link
+    -  Zope2.egg-link
+    -  docutils.egg-link
+    -  mechanize.egg-link
     -  plone.recipe.zope2install.egg-link
+    -  pytz.egg-link
+    -  tempstorage.egg-link
+    -  zLOG.egg-link
+    -  zdaemon.egg-link
+    -  zodbcode.egg-link
     -  zope.annotation.egg-link
     -  zope.app.annotation.egg-link
-    -  zope.app.apidoc.egg-link
-    -  zope.app.applicationcontrol.egg-link
     ...
 
 Let's have a look at the content of one of them::
@@ -172,7 +193,7 @@ additional-fake-eggs option, for example::
     ... [zope2]
     ... recipe = plone.recipe.zope2install
     ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
-    ... additional-fake-eggs = ZODB3
+    ... additional-fake-eggs = Foo
     ... """)
 
     >>> print system(buildout)
@@ -189,9 +210,9 @@ additional-fake-eggs option, for example::
 
 Let's check if the additional fake egg exists:
 
-    >>> cat(sample_buildout, 'fake-eggs', 'ZODB3', 'ZODB3.egg-info')
+    >>> cat(sample_buildout, 'fake-eggs', 'Foo', 'Foo.egg-info')
     Metadata-Version: 1.0
-    Name: ZODB3
+    Name: Foo
     Version: 0.0
 
 If you need to have a specific version of an egg, this can be done like this:
@@ -267,8 +288,24 @@ Let's run the buildout::
 Now if we list all the developed eggs we have:
 
     >>> ls(sample_buildout, 'develop-eggs')
+    -  Acquisition.egg-link
+    -  ClientForm.egg-link
+    -  DateTime.egg-link
+    -  ExtensionClass.egg-link
+    -  Foo.egg-link
+    -  Persistence.egg-link
+    -  RestrictedPython.egg-link
+    -  ZConfig.egg-link
     -  ZODB3.egg-link
+    -  Zope2.egg-link
+    -  docutils.egg-link
+    -  mechanize.egg-link
     -  plone.recipe.zope2install.egg-link
+    -  pytz.egg-link
+    -  tempstorage.egg-link
+    -  zLOG.egg-link
+    -  zdaemon.egg-link
+    -  zodbcode.egg-link
     -  zope.app.annotation.egg-link
     -  zope.app.applicationcontrol.egg-link
     ...
@@ -313,6 +350,7 @@ And a second time, even if we remove .installed.cfg it is not recompiled::
     >>> os.remove('.installed.cfg')
     >>> print system(buildout)
     Installing zope2.
+    Creating fake eggs
     <BLANKLINE>
 
 Let's remove the option::
@@ -342,5 +380,4 @@ Now if we run the buildout again::
     creating build/...
     creating build/.../AccessControl
     ...
-
 

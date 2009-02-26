@@ -25,6 +25,27 @@ Name: %s
 Version: %s
 """
 
+DEFAULT_FAKE_EGGS = [
+    'Acquisition',
+    'ClientForm',
+    'DateTime',
+    'docutils',
+    'ExtensionClass',
+    'mechanize',
+    'pytz',
+    'RestrictedPython',
+    'Persistence',
+    'tempstorage',
+    'ZConfig',
+    'zLOG',
+    'zodbcode',
+    'ZODB3',
+    'zdaemon',
+    'Zope2',
+]
+
+# define which values are read as true
+TRUEVALS = ('y', 'yes', 't', 'true', 'on', '1')
 
 class FakeLibInfo(object):
     """
@@ -85,18 +106,39 @@ class Recipe:
             'download-cache',
             os.path.join(buildout['buildout']['directory'], 'downloads'))
 
+        self.fake_zope_eggs = options.get('fake-zope-eggs', 'true')
+        if self.fake_zope_eggs.lower() not in TRUEVALS:
+            self.fake_zope_eggs = False
+        else:
+            self.fake_zope_eggs = True
+        self.fake_eggs_folder = self.options.get('fake-eggs-folder',
+                                                 'fake-eggs')
+
         skip_fake_eggs = self.options.get('skip-fake-eggs', '')
         self.skip_fake_eggs = [e for e in skip_fake_eggs.split('\n') if e]
 
-        additional = self.options.get('additional-fake-eggs', '')
-        self.additional_fake_eggs = [e for e in additional.split('\n') if e]
-
-        self.fake_zope_eggs = bool(options.get('fake-zope-eggs', False))
-        self.fake_eggs_folder = self.options.get('fake-eggs-folder',
-                                                 'fake-eggs')
-        # Automatically activate fake eggs
-        if self.skip_fake_eggs or self.additional_fake_eggs:
-            self.fake_zope_eggs = True
+        if self.fake_zope_eggs:
+            # We add all additional fake eggs
+            additional = self.options.get('additional-fake-eggs', '')
+            additional = [e for e in additional.split('\n') if e]
+            additional_names = []
+            # Build up a list of all fake egg names without a version spec
+            for line in additional:
+                if '=' in line:
+                    spec = line.strip().split('=')
+                    name = spec[0].strip()
+                else:
+                    name = line.strip()
+                additional_names.append(name)
+            # Add defaults to the specified set if the egg is not specified
+            # in the additional-fake-eggs option, so you can overwrite one of
+            # the default eggs with one including a version spec
+            for name in DEFAULT_FAKE_EGGS:
+                if name not in additional_names:
+                    additional.append(name)
+            self.additional_fake_eggs = additional
+        else:
+            self.additional_fake_eggs = []
 
     def _compiled(self, path):
         """returns True if the path is compiled"""

@@ -1,16 +1,18 @@
 Change History
 ==============
 
-2.7 (unreleased)
+3.0 (unreleased)
 ----------------
 
-
+- Changed the default for fake eggs creation to true and added a number of
+  additional fake eggs to the default.
+  [hannosch]
 
 2.6 (2008-12-12)
 ----------------
 
-- Change the fake eggs creation, to fix bug related to egg depedencies
-  in developped eggs.
+- Change the fake eggs creation, to fix bug related to egg dependencies
+  in develop-eggs.
   [jfroche]
 
 - Added the smart-recompile option.

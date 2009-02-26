@@ -18,12 +18,12 @@ To specify which Zope 2 to use, use one of the following options:
 
 `fake-zope-eggs`
     If set to true, add fake egg links to Zope 3 libraries, so that setuptools
-    can see and use them for dependencies lookup.
+    can see and use them for dependencies lookup. Enabled by default since
+    version 3.0 of this recipe.
 
 `additional-fake-eggs`
     Specify an optional list of additional fake eggs. Only include packages
-    which are available on the Python path. Typical examples include ZODB3
-    or zdaemon.
+    which are available on the Python path.
 
     You can also specify an explicit version to fake for an egg. For example::
 
@@ -32,6 +32,10 @@ To specify which Zope 2 to use, use one of the following options:
             zope.annotation = 3.3.2
 
     Otherwise the faked eggs will always have version 0.0.
+    
+    The default value includes Acquisition, ClientForm, DateTime, docutils,
+    ExtensionClass, mechanize, Persistence, pytz, RestrictedPython,
+    tempstorage, ZConfig, zLOG, zodbcode, ZODB3, zdaemon and Zope2.
 
 `skip-fake-eggs`
     Specify an optional list of packages, for whom no fake egg is created.
