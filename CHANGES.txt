@@ -1,7 +1,7 @@
 Change History
 ==============
 
-3.0 (unreleased)
+3.0 (2009-02-26)
 ----------------
 
 - Changed the default for fake eggs creation to true and added a number of
