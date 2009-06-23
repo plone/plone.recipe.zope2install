@@ -1,7 +1,7 @@
 Change History
 ==============
 
-3.1 (unreleased)
+3.1 (2009-06-23)
 ----------------
 
 - Create download-cache directory when not provided by buildout
