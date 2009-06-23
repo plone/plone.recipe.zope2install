@@ -102,9 +102,12 @@ class Recipe:
                 buildout['buildout']['parts-directory'],
                 self.name)
         # We look for a download cache, where we put the downloaded tarball
-        buildout['buildout'].setdefault(
-            'download-cache',
-            os.path.join(buildout['buildout']['directory'], 'downloads'))
+        if buildout['buildout'].get('download-cache') is None:
+            download_cache = os.path.join(buildout['buildout']['directory'],
+                                          'downloads')
+            if not os.path.isdir(download_cache):
+                os.mkdir(download_cache)
+            buildout['buildout'].setdefault('download-cache', download_cache)
 
         self.fake_zope_eggs = options.get('fake-zope-eggs', 'true')
         if self.fake_zope_eggs.lower() not in TRUEVALS:
@@ -187,7 +190,7 @@ class Recipe:
         # full installation 
         if os.path.exists(location): 
             shutil.rmtree(location) 
-        
+
         if self.svn:
             assert os.system('svn co %s %s' % (options['svn'], location)) == 0
         else:
