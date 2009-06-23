@@ -47,6 +47,7 @@ DEFAULT_FAKE_EGGS = [
 # define which values are read as true
 TRUEVALS = ('y', 'yes', 't', 'true', 'on', '1')
 
+
 class FakeLibInfo(object):
     """
     a really simple to store informations about libraries to be faked
@@ -74,7 +75,7 @@ class Recipe:
 
         if self.location is not None:
             # We have an existing Zope installation; use it.
-            assert os.path.exists(self.location), 'No such file or directory: %s' % (self.location,)
+            assert os.path.exists(self.location), 'No such file or directory: %s' % self.location
             options['location'] = self.location
             options['shared-zope'] = 'true'
         elif (self.svn is None and
@@ -153,7 +154,6 @@ class Recipe:
                         compiled_ext = '.pyd'
                     else:
                         compiled_ext = '.so'
-                    
                     compiled = os.path.join(root, '%s%s' % (base, compiled_ext))
                     if not os.path.exists(compiled):
                         return False
@@ -163,7 +163,7 @@ class Recipe:
         options = self.options
         location = options['location']
         download_dir = self.buildout['buildout']['download-cache']
-        smart_recompile = options.get('smart-recompile') == 'true' 
+        smart_recompile = options.get('smart-recompile') == 'true'
 
         if os.path.exists(location):
             # if the zope installation exists and is shared, then we are done
@@ -180,16 +180,16 @@ class Recipe:
             smart_recompile = True
 
         if smart_recompile and os.path.exists(location):
-            # checking if the c source where compiled. 
-            if self._compiled(location): 
-                if self.fake_zope_eggs: 
-                    print 'Creating fake eggs' 
-                    self.fakeEggs() 
-                return [] 
+            # checking if the c source where compiled.
+            if self._compiled(location):
+                if self.fake_zope_eggs:
+                    print 'Creating fake eggs'
+                    self.fakeEggs()
+                return []
 
-        # full installation 
-        if os.path.exists(location): 
-            shutil.rmtree(location) 
+        # full installation
+        if os.path.exists(location):
+            shutil.rmtree(location)
 
         if self.svn:
             assert os.system('svn co %s %s' % (options['svn'], location)) == 0
@@ -318,7 +318,7 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
-        shared = options.get('shared-zope') 
+        shared = options.get('shared-zope')
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \
@@ -341,10 +341,10 @@ class Recipe:
                 if options.get('shared-zope') == 'true':
                     return []
                 return location
-            
+
             if (self._compiled(location) and
-                options.get('smart-recompile') == 'true'): 
-                return location 
+                options.get('smart-recompile') == 'true'):
+                return location
 
             os.chdir(location)
             stdin, stdout, stderr = os.popen3('svn up')
