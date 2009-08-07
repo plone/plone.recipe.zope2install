@@ -310,6 +310,102 @@ Now if we list all the developed eggs we have:
     -  zope.app.applicationcontrol.egg-link
     ...
 
+If you want to develop one of the packages shipped
+with the Zope tarball, you use skip-fake-eggs.
+However, the corresponding develop egg should be left intact.
+
+First, make a directory with develop eggs::
+
+    >>> mkdir(sample_buildout, 'devel')
+    >>> mkdir(sample_buildout, 'devel', 'Acquisition')
+    >>> write(sample_buildout, 'devel', 'Acquisition', 'setup.py',
+    ... '''
+    ... from setuptools import setup
+    ... setup(
+    ...     name = "Acquisition",
+    ...     )
+    ... ''')
+    >>> mkdir(sample_buildout, 'devel', 'zope.annotation')
+    >>> write(sample_buildout, 'devel', 'zope.annotation', 'setup.py',
+    ... '''
+    ... from setuptools import setup
+    ... setup(
+    ...     name = "zope.annotation",
+    ...     )
+    ... ''')
+
+Second, make a buildout with the given develop eggs, skipped as fake eggs::
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = zope2
+    ... find-links =
+    ...     http://dist.plone.org/
+    ... develop = devel/Acquisition
+    ...           devel/zope.annotation
+    ...
+    ... [zope2]
+    ... recipe = plone.recipe.zope2install
+    ... url = http://www.zope.org/Products/Zope/2.10.6/Zope-2.10.6-final.tgz
+    ... skip-fake-eggs =
+    ...     Acquisition
+    ...     zope.annotation
+    ...     zope.app.apidoc
+    ... """)
+
+Let's run the buildout::
+
+    >>> print system(buildout)
+    Develop: '/sample-buildout/devel/Acquisition'
+    Develop: '/sample-buildout/devel/zope.annotation'
+    Uninstalling zope2.
+    Installing zope2.
+    running build_ext
+    creating zope.proxy
+    copying zope/proxy/proxy.h -> zope.proxy
+    building 'AccessControl.cAccessControl' extension
+    creating build
+    creating build/...
+    creating build/.../AccessControl
+    ...
+
+Now if we list all the developed eggs we have::
+
+    >>> ls(sample_buildout, 'develop-eggs')
+    -  Acquisition.egg-link
+    -  ClientForm.egg-link
+    -  DateTime.egg-link
+    -  ExtensionClass.egg-link
+    -  Foo.egg-link
+    -  Persistence.egg-link
+    -  RestrictedPython.egg-link
+    -  ZConfig.egg-link
+    -  ZODB3.egg-link
+    -  Zope2.egg-link
+    -  docutils.egg-link
+    -  mechanize.egg-link
+    -  plone.recipe.zope2install.egg-link
+    -  pytz.egg-link
+    -  tempstorage.egg-link
+    -  zLOG.egg-link
+    -  zdaemon.egg-link
+    -  zodbcode.egg-link
+    -  zope.annotation.egg-link
+    -  zope.app.annotation.egg-link
+    -  zope.app.applicationcontrol.egg-link
+    ...
+
+Let's check the develop-egg links::
+
+    >>> cat(sample_buildout, 'develop-eggs', 'Acquisition.egg-link')
+    /sample-buildout/devel/Acquisition
+    .
+
+    >>> cat(sample_buildout, 'develop-eggs', 'zope.annotation.egg-link')
+    /sample-buildout/devel/zope.annotation
+    .
+
 Smart compilation
 =================
 

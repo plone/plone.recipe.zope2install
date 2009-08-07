@@ -46,6 +46,7 @@ DEFAULT_FAKE_EGGS = [
 
 # define which values are read as true
 TRUEVALS = ('y', 'yes', 't', 'true', 'on', '1')
+VERSION_0_0 = '0.0'
 
 
 class FakeLibInfo(object):
@@ -56,9 +57,48 @@ class FakeLibInfo(object):
     version = ''
     name = ''
 
-    def __init__(self, name, version='0.0'):
+    def __init__(self, name, version=VERSION_0_0, skip=False):
         self.version = version
         self.name = name
+        self.skip = skip
+
+    def make(self, fakeEggsDirectory, developEggsDirectory):
+        self.link = os.path.join(developEggsDirectory,
+            '%s.egg-link' % self.name)
+        self.libDirectory = os.path.join(fakeEggsDirectory, self.name)
+        if self.skip:
+            self.cleanup()
+        else:
+            self.makeEggInfoFile()
+            self.makeDevelopEggLink()
+
+    def cleanup(self):
+        if os.path.isdir(self.libDirectory):
+            shutil.rmtree(self.libDirectory)
+        if os.path.exists(self.link) and self.linkIsFake():
+            os.remove(self.link)
+
+    def makeEggInfoFile(self):
+        directory = self.libDirectory
+        if not os.path.isdir(directory):
+            os.mkdir(directory)
+        eggInfoFile = os.path.join(directory, '%s.egg-info' % self.name)
+        fd = open(eggInfoFile, 'w')
+        fd.write(EGG_INFO_CONTENT % (self.name, self.version))
+        fd.close()
+
+    def makeDevelopEggLink(self):
+        fd = open(self.link, 'w')
+        fd.write("%s\n." % self.libDirectory)
+        fd.close()
+
+    def linkIsFake(self):
+        fd = open(self.link)
+        try:
+            line = fd.readline()
+            return line.startswith(self.libDirectory)
+        finally:
+            fd.close()
 
 
 class Recipe:
@@ -75,7 +115,8 @@ class Recipe:
 
         if self.location is not None:
             # We have an existing Zope installation; use it.
-            assert os.path.exists(self.location), 'No such file or directory: %s' % self.location
+            assert os.path.exists(self.location), \
+                'No such file or directory: %s' % self.location
             options['location'] = self.location
             options['shared-zope'] = 'true'
         elif (self.svn is None and
@@ -121,29 +162,6 @@ class Recipe:
         skip_fake_eggs = self.options.get('skip-fake-eggs', '')
         self.skip_fake_eggs = [e for e in skip_fake_eggs.split('\n') if e]
 
-        if self.fake_zope_eggs:
-            # We add all additional fake eggs
-            additional = self.options.get('additional-fake-eggs', '')
-            additional = [e for e in additional.split('\n') if e]
-            additional_names = []
-            # Build up a list of all fake egg names without a version spec
-            for line in additional:
-                if '=' in line:
-                    spec = line.strip().split('=')
-                    name = spec[0].strip()
-                else:
-                    name = line.strip()
-                additional_names.append(name)
-            # Add defaults to the specified set if the egg is not specified
-            # in the additional-fake-eggs option, so you can overwrite one of
-            # the default eggs with one including a version spec
-            for name in DEFAULT_FAKE_EGGS:
-                if name not in additional_names:
-                    additional.append(name)
-            self.additional_fake_eggs = additional
-        else:
-            self.additional_fake_eggs = []
-
     def _compiled(self, path):
         """returns True if the path is compiled"""
         for files, dirs, root in os.walk(path):
@@ -154,7 +172,8 @@ class Recipe:
                         compiled_ext = '.pyd'
                     else:
                         compiled_ext = '.so'
-                    compiled = os.path.join(root, '%s%s' % (base, compiled_ext))
+                    compiled = os.path.join(root,
+                        '%s%s' % (base, compiled_ext))
                     if not os.path.exists(compiled):
                         return False
         return True
@@ -246,31 +265,42 @@ class Recipe:
             return []
         return location
 
-    def _getInstalledLibs(self, location, prefix):
-        installedLibs = []
-        for lib in os.listdir(location):
-            name = '%s.%s' % (prefix, lib)
-            if (os.path.isdir(os.path.join(location, lib)) and
-                name not in self.skip_fake_eggs and
-                name not in [libInfo.name for libInfo in self.libsToFake]):
-                # Only add the package if it's not yet in the list and it's
-                # not in the skip list
-                installedLibs.append(FakeLibInfo(name))
-        return installedLibs
-
     def fakeEggs(self):
-        zope2Location = self.options['location']
-        zopeLibZopeLocation = os.path.join(zope2Location, 'lib', 'python',
-                                           'zope')
-        zopeLibZopeAppLocation = os.path.join(zope2Location, 'lib', 'python',
-                                              'zope', 'app')
-        fakeEggsFolderLocation = os.path.join(self.buildout['buildout']['directory'],
-                                              self.fake_eggs_folder)
-        if not os.path.isdir(fakeEggsFolderLocation):
-            os.mkdir(fakeEggsFolderLocation)
+        self.makeFakeEggsDirectory()
+        self.initAdditionalFakeEggs()
+        self.harvestPotentialFakeEggs()
 
+        developEggDir = self.buildout['buildout']['develop-eggs-directory']
+        for libInfo in self.libsToFake:
+            libInfo.make(self.fakeEggsDirectory, developEggDir)
+
+    def makeFakeEggsDirectory(self):
+        self.fakeEggsDirectory = os.path.join(
+            self.buildout['buildout']['directory'], self.fake_eggs_folder)
+        if not os.path.isdir(self.fakeEggsDirectory):
+            os.mkdir(self.fakeEggsDirectory)
+
+    def initAdditionalFakeEggs(self):
         self.libsToFake = []
-        for lib in self.additional_fake_eggs:
+        # We add all additional fake eggs
+        additional = self.options.get('additional-fake-eggs', '')
+        additional = [e for e in additional.split('\n') if e]
+        additional_names = []
+        # Build up a list of all fake egg names without a version spec
+        for line in additional:
+            if '=' in line:
+                spec = line.strip().split('=')
+                name = spec[0].strip()
+            else:
+                name = line.strip()
+            additional_names.append(name)
+        # Add defaults to the specified set if the egg is not specified
+        # in the additional-fake-eggs option, so you can overwrite one of
+        # the default eggs with one including a version spec
+        for name in DEFAULT_FAKE_EGGS:
+            if name not in additional_names:
+                additional.append(name)
+        for lib in additional:
             # 2 forms available:
             #  * additional-fake-eggs = myEgg
             #  * additional-fake-eggs = myEgg=0.4
@@ -278,42 +308,36 @@ class Recipe:
                 lib = lib.strip().split('=')
                 eggName = lib[0].strip()
                 version = lib[1].strip()
-                libInfo = FakeLibInfo(eggName, version)
             else:
                 eggName = lib.strip()
-                libInfo = FakeLibInfo(eggName)
-
+                version = VERSION_0_0
+            skip = self.shouldSkipFakeEgg(eggName)
+            libInfo = FakeLibInfo(eggName, version, skip)
             self.libsToFake.append(libInfo)
 
+    def shouldSkipFakeEgg(self, name):
+        return name in self.skip_fake_eggs
+
+    def harvestPotentialFakeEggs(self):
+        zope2Location = self.options['location']
+        zopeLibZopeLocation = os.path.join(zope2Location, 'lib', 'python',
+                                           'zope')
+        zopeLibZopeAppLocation = os.path.join(zope2Location, 'lib', 'python',
+                                              'zope', 'app')
         self.libsToFake += self._getInstalledLibs(zopeLibZopeLocation, 'zope')
         self.libsToFake += self._getInstalledLibs(zopeLibZopeAppLocation,
                                              'zope.app')
 
-        developEggDir = self.buildout['buildout']['develop-eggs-directory']
-        for libInfo in self.libsToFake:
-            fakeLibDirLocation = os.path.join(fakeEggsFolderLocation,
-                                              libInfo.name)
-            fake_egg_link = os.path.join(developEggDir, '%s.egg-link' %\
-                                         libInfo.name)
-            if not os.path.isdir(fakeLibDirLocation):
-                os.mkdir(fakeLibDirLocation)
-            fakeLibEggInfoFile = os.path.join(fakeLibDirLocation,
-                                              '%s.egg-info' % libInfo.name)
-            fd = open(fakeLibEggInfoFile, 'w')
-            fd.write(EGG_INFO_CONTENT % (libInfo.name, libInfo.version))
-            fd.close()
-            fd = open(fake_egg_link, 'w')
-            fd.write("%s\n." % fakeLibDirLocation)
-            fd.close()
-
-        # Delete fake eggs, when we don't want them anymore
-        for name in self.skip_fake_eggs:
-            fake_egg_link = os.path.join(developEggDir, '%s.egg-link' % name)
-            fakeLibDir = os.path.join(fakeEggsFolderLocation, name)
-            if os.path.isdir(fakeLibDir):
-                shutil.rmtree(fakeLibDir)
-            if os.path.exists(fake_egg_link):
-                os.remove(fake_egg_link)
+    def _getInstalledLibs(self, location, prefix):
+        installedLibs = []
+        for lib in os.listdir(location):
+            name = '%s.%s' % (prefix, lib)
+            if (os.path.isdir(os.path.join(location, lib)) and
+                name not in [libInfo.name for libInfo in self.libsToFake]):
+                # Only add the package if it's not yet in the list
+                skip = self.shouldSkipFakeEgg(name)
+                installedLibs.append(FakeLibInfo(name, skip=skip))
+        return installedLibs
 
     def update(self):
         options = self.options
