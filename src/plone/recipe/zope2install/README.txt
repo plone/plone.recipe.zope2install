@@ -358,7 +358,9 @@ Let's run the buildout::
 
     >>> print system(buildout)
     Develop: '/sample-buildout/devel/Acquisition'
+    install_dir /sample-buildout/develop-eggs/...
     Develop: '/sample-buildout/devel/zope.annotation'
+    install_dir /sample-buildout/develop-eggs/...
     Uninstalling zope2.
     Installing zope2.
     running build_ext
