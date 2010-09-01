@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 name = "plone.recipe.zope2install"
-version = '3.3'
+version = '3.4dev'
 
 
 def read(*rnames):
