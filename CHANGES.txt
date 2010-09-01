@@ -1,7 +1,7 @@
 Change History
 ==============
 
-3.3 (unreleased)
+3.3 (2010-09-01)
 ----------------
 
 - Add ``python`` option to be able to specify other python than
