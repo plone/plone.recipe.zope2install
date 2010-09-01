@@ -46,6 +46,18 @@ To specify which Zope 2 to use, use one of the following options:
     Will not recompile Zope if it finds .so or .pyd files. This means
     you can move your buildout around and speed up builds.
 
+`python`
+    Specify a section that configures another executable than the one used by 
+    ``bin/buildout``.  For example::
+
+        [zope2]
+        recipe = plone.recipe.zope2install
+        ...
+        python = python2.4
+        
+        [python2.4]
+        executable = ${buildout:directory}/parts/python/bin/python
+
 If you use many buildouts with the same Zope 2 version, then you can add
 "zope-directory" in the "buildout" section in your ~/.buildout/default.cfg
 file like this::

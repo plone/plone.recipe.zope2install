@@ -106,7 +106,7 @@ class Recipe:
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
 
-        python = buildout['buildout']['python']
+        python = options.get('python', buildout['buildout']['python'])
         options['executable'] = buildout[python]['executable']
         self.location = options.get('location', None)
         self.svn = options.get('svn', None)
@@ -180,6 +180,7 @@ class Recipe:
 
     def install(self):
         options = self.options
+        print 'Zope2 is setup using : %s' % options['executable']
         location = options['location']
         download_dir = self.buildout['buildout']['download-cache']
         smart_recompile = options.get('smart-recompile') == 'true'
@@ -217,7 +218,7 @@ class Recipe:
                 os.mkdir(download_dir)
 
             _, _, urlpath, _, _, _ = urlparse.urlparse(self.url)
-            tmp = tempfile.mkdtemp('buildout-'+self.name)
+            tmp = tempfile.mkdtemp('buildout-' + self.name)
             try:
                 fname = os.path.join(download_dir, urlpath.split('/')[-1])
                 # Have we already downloaded the file
@@ -342,7 +343,6 @@ class Recipe:
     def update(self):
         options = self.options
         location = options['location']
-        shared = options.get('shared-zope')
         if os.path.exists(location):
             # Don't do anything in offline mode
             if self.buildout['buildout'].get('offline') == 'true' or \

@@ -4,7 +4,9 @@ Change History
 3.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add ``python`` option to be able to specify other python than
+  ``buildout:executable``
+  [gotcha]
 
 
 3.2 (2009-08-07)
